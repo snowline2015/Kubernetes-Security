@@ -22,6 +22,7 @@ class Trivy:
 
 class Image:
     def __init__(self, data: dict = {}):
+        self.RAW = data
         self.NAME = data.get('ArtifactName', '')
         self.METADATA = data.get('Metadata', {})
         self.FINDINGS = {}
@@ -30,8 +31,9 @@ class Image:
 
     def get_results(self, data: dict = {}):
         for result in data.get('Results', []):
-            for vuln in result.get('Vulnerabilities', []):
-                self.FINDINGS[Vulnerability(vuln).CVE] = Vulnerability(vuln)
+            for item in result.get('Vulnerabilities', []):
+                vuln = Vulnerability(item)
+                self.FINDINGS[vuln.CVE] = [vuln] if vuln.CVE not in self.FINDINGS else self.FINDINGS[vuln.CVE] + [vuln]
 
 
 
@@ -50,3 +52,8 @@ class Vulnerability:
         self.REFERENCES = data.get('References', [])
         self.PUBLISHED_DATE = data.get('PublishedDate', '')
         self.LAST_MODIFIED_DATE = data.get('LastModifiedDate', '')
+
+
+if __name__ == '__main__':
+    trivy = Trivy()
+    trivy.scan('nginx:latest')
