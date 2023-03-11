@@ -9,7 +9,8 @@ class Trivy:
 
     def runner(self):
         res = subprocess.run('which trivy', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        print('Trivy is not installed') if not res.stdout else print('Trivy is already installed')
+        if not res.stdout:
+            print('Trivy is not installed')
 
 
     def scan(self, image: str):
@@ -23,7 +24,15 @@ class Image:
     def __init__(self, data: dict = {}):
         self.NAME = data.get('ArtifactName', '')
         self.METADATA = data.get('Metadata', {})
-        self.FINDINGS = [Vulnerability(vuln) for vuln in data.get('Vulnerabilities', [])]
+        self.FINDINGS = {}
+        self.get_results(data)
+
+
+    def get_results(self, data: dict = {}):
+        for result in data.get('Results', []):
+            for vuln in result.get('Vulnerabilities', []):
+                self.FINDINGS[Vulnerability(vuln).CVE] = Vulnerability(vuln)
+
 
 
 class Vulnerability:
@@ -41,12 +50,3 @@ class Vulnerability:
         self.REFERENCES = data.get('References', [])
         self.PUBLISHED_DATE = data.get('PublishedDate', '')
         self.LAST_MODIFIED_DATE = data.get('LastModifiedDate', '')
-
-
-if __name__ == '__main__':
-    trivy = Trivy()
-    trivy.scan('nginx:latest')
-
-
-
-
