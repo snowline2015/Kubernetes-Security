@@ -61,16 +61,3 @@ spec:
   containers:
   - name: nginx
     image: nginx:latest
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: trivy
-  labels:
-    org: aquasecurity
-    class: trivy
-    app.kubernetes.io/name: trivy
-spec:
-  containers:
-  - name: trivy
-    image: aquasec/trivy:latest
