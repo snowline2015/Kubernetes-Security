@@ -1,0 +1,58 @@
+### Install Tetragon
+helm repo add cilium https://helm.cilium.io
+helm repo update
+helm install tetragon cilium/tetragon -n kube-system
+kubectl rollout status -n kube-system ds/tetragon -w
+
+
+### Install ElasticSearch
+# Get values.yaml
+https://raw.githubusercontent.com/elastic/helm-charts/main/elasticsearch/examples/kubernetes-kind/values.yaml
+
+# Install
+helm repo add elastic https://helm.elastic.co
+helm repo update
+helm install elasticsearch elastic/elasticsearch --set service.type=LoadBalancer -f values.yaml
+
+# Get ElasticSearch password
+kubectl get secrets --namespace=default elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
+
+# Get Node IP
+kubectl get nodes -o wide
+
+# Access ElasticSearch
+https://<Node IP>:<ElasticSearch Port 1>
+
+
+
+### Install Fluentd
+# Get fluentd-daemonset-elasticsearch-rbac.yaml
+https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/fluentd-daemonset-elasticsearch-rbac.yaml
+
+# Edit 
+# FLUENT_ELASTICSEARCH_HOST: "<Node IP>"
+# FLUENT_ELASTICSEARCH_PORT: "<ElasticSearch Port 1>"
+# FLUENT_ELASTICSEARCH_SCHEME: "https"
+# FLUENT_ELASTICSEARCH_PASSWORD: "<Elasticsearch password>"
+
+# Create
+kubectl create -f fluentd-daemonset-elasticsearch-rbac.yaml
+
+
+### Install Kibana
+helm install kibana elastic/kibana --set service.type=LoadBalancer
+
+# Access Kibana
+http://<Node IP>:<Kibana Port>/
+
+# If installation fails
+helm uninstall kibana
+kubectl delete configmap kibana-kibana-helm-scripts
+kubectl delete serviceaccount pre-install-kibana-kibana
+kubectl delete roles pre-install-kibana-kibana
+kubectl delete rolebindings pre-install-kibana-kibana
+kubectl delete job pre-install-kibana-kibana
+kubectl delete secrets kibana-kibana-es-token
+
+
+
