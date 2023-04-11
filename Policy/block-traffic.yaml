@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: block-traffic
+  namespace: namespace_name
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pod_name
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress: []
+  egress: []
