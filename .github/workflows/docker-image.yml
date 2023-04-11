@@ -21,6 +21,6 @@ jobs:
       run: |
         docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag kubernetes-security:latest
+      run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USERNAME}}/kubernetes-security
     - name: Docker Push
       run: docker push ${{secrets.DOCKER_USERNAME}}/kubernetes-security
