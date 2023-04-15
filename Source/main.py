@@ -1,10 +1,19 @@
 import json
 import yaml
 import subprocess
-import kubernetes
+from kubernetes import client, config, utils
 from flask import Flask, jsonify, request
 
+
+# Flask API
 app = Flask(__name__)
+
+
+# Kubernetes API
+config.load_incluster_config()
+v1 = client.CoreV1Api()
+k8s_client = client.ApiClient() 
+
 
 
 class Pod:
@@ -23,62 +32,60 @@ class Pod:
 
 @app.route('/')
 def index():
-    return jsonify(code=200, data='Kubernetes Security ')
+    return jsonify(code=200, data='Kubernetes Security')
 
-
+    
 
 @app.route('/api/v1/pods', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def interact_pods():
     pod = request.args.get('pod', '')
     namespace = request.args.get('namespace', '')
 
-    if methods == 'GET':
+    if request.method == 'GET':
         try:
-            res = subprocess.run(f'kubectl get pods {pod} -n "{namespace}" -o json', shell=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if res.stdout:
-                data = json.loads(res.stdout)
-                return jsonify(code=200, data=[Pod(data).RAW for data in data.get('items', [])]) if not pod else jsonify(code=200, data=Pod(data).RAW)
+            if pod and namespace:
+                data = v1.read_namespaced_pod(name=pod, namespace=namespace)
+                return jsonify(code=200, data=Pod(data=data).RAW)
             else:
-                return jsonify(code=404, data='Not Found')
+                data = v1.list_pod_for_all_namespaces(watch=False)
+                return jsonify(code=200, data=[Pod(data=item).RAW for item in data.items])
         except Exception as e:
             return jsonify(code=500, data='Internal Server Error')
-    
+        
 
-    elif methods == 'POST':
+    elif request.method == 'POST':
         pass
-    
 
-    elif methods == 'PUT':
+
+    elif request.method == 'PUT':
         with open('../Policy/block-traffic.yaml', 'r') as f:
             data = yaml.safe_load(f)
         data['metadata']['namespace'] = namespace
         data['spec']['podSelector']['matchLabels']['app.kubernetes.io/name'] = pod
         with open('../Policy/block-traffic.yaml', 'w') as f:
             yaml.dump(data, f)
+
+        try:
+            utils.create_from_yaml(k8s_client, '../Policy/block-traffic.yaml')
+            return jsonify(code=200, data='OK')
+        except Exception as e:
+            return jsonify(code=500, data='Internal Server Error')
         
+
+    elif request.method == 'DELETE':
         try:
-            res = subprocess.run(f'kubectl apply -f network-policy.yaml', shell=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            return jsonify(code=200, data='OK')if res.stdout else jsonify(code=404, data='Not Found')
+            v1.delete_namespaced_pod(name=pod, namespace=namespace)
+            return jsonify(code=200, data='OK')
         except Exception as e:
             return jsonify(code=500, data='Internal Server Error')
+        
 
-
-    elif methods == 'DELETE':
-        try:
-            res = subprocess.run(f'kubectl delete pod/{pod} -n "{namespace}"', shell=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            return jsonify(code=200, data='OK') if res.stdout else jsonify(code=404, data='Not Found')
-        except Exception as e:
-            return jsonify(code=500, data='Internal Server Error')
-
-
-
-
-def main():
-    app.run(debug=True, port=50000)
-
+    else:
+        return jsonify(code=400, data='Bad Request')
+    
 
 
 
 
 if __name__ == '__main__':
-    main()
+    app.run(debug=True, port=50000)
