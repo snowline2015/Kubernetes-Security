@@ -52,7 +52,7 @@ def interact_pods():
                 return jsonify(code=200, data=Pod(data=json.loads(res.data)).attributes())
             else:
                 res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
-                return jsonify(code=200, data=[Pod(data=item.data).attributes() for item in json.loads(res)['items']])
+                return jsonify(code=200, data=[Pod(data=item).attributes() for item in json.loads(res.data)['items']])
         except ApiException as e:
             if e.status == 404:
                 return jsonify(code=404, data='Not Found')
