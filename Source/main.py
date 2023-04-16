@@ -44,13 +44,13 @@ def interact_pods():
     if request.method == 'GET':
         try:
             if pod and namespace:
-                res = v1.read_namespaced_pod(name=pod, namespace=namespace)
+                res = v1.read_namespaced_pod(name=pod, namespace=namespace, _preload_content=False)
                 # return jsonify(code=200, data=Pod(data=res).RAW)
-                return jsonify(code=200, data=res)
+                return jsonify(code=200, data={'raw': res, 'data': json.loads(res.data)})
             else:
-                res = v1.list_pod_for_all_namespaces(watch=False)
+                res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
                 # return jsonify(code=200, data=[Pod(data=item).RAW for item in res.items])
-                return jsonify(code=200, data=res)
+                return jsonify(code=200, data={'raw': res, 'data': json.loads(res.data)})
         except Exception as e:
             return jsonify(code=500, data=str(e))
         
