@@ -26,21 +26,12 @@ spec:
 
 
 apiVersion: v1
-kind: Pod
+kind: ServiceAccount
 metadata:
-  name: kube-sec-be
+  name: kube-sec
   namespace: kube-security
   labels:
     app.kubernetes.io/name: kube-sec
-spec:
-  containers:
-  - name: kubernetes-security
-    image: snowline2015/kubernetes-security:latest
-    ports:
-    - containerPort: 50000
-  nodeSelector:
-    kubernetes.io/hostname: kind-control-plane
-  nodeName: kind-control-plane
 ---
 
 
@@ -49,6 +40,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: kube-sec
+  namespace: kube-security
+  labels:
+    app.kubernetes.io/name: kube-sec
 rules:
 - apiGroups: [""]
   resources: ["*"]
@@ -61,6 +55,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: kube-sec
+  namespace: kube-security
+  labels:
+    app.kubernetes.io/name: kube-sec
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -68,5 +65,35 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kube-sec
+  namespace: kube-security 
+---
+
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-sec-be
   namespace: kube-security
-    
+  labels:
+    app.kubernetes.io/name: kube-sec
+spec:
+  serviceAccountName: kube-sec
+  containers:
+  - name: kubernetes-security
+    image: snowline2015/kubernetes-security:latest
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 50000
+---
+
+
+      
+
+
+
+
+
+
+
+
