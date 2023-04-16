@@ -75,7 +75,7 @@ def interact_pods():
     elif request.method == 'DELETE':
         try:
             v1.delete_namespaced_pod(name=pod, namespace=namespace)
-            return jsonify(code=200, data='OK')
+            return jsonify(code=200, data={'pod': pod, 'namespace': namespace})
         except Exception as e:
             return jsonify(code=500, data=str(e))
         
