@@ -11,14 +11,12 @@ RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --
     apt-get update && apt-get install trivy -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
 COPY . /app
 
-# Install any needed packages specified in requirements.txt
 RUN pip3 install -r requirements.txt
 
-# Run app.py when the container launches
+EXPOSE 50000
+
 CMD ["python3", "Source/main.py"]

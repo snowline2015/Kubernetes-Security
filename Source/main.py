@@ -50,7 +50,7 @@ def interact_pods():
                 data = v1.list_pod_for_all_namespaces(watch=False)
                 return jsonify(code=200, data=[Pod(data=item).RAW for item in data.items])
         except Exception as e:
-            return jsonify(code=500, data='Internal Server Error')
+            return jsonify(code=500, data=str(e))
         
 
     elif request.method == 'POST':
@@ -69,7 +69,7 @@ def interact_pods():
             utils.create_from_yaml(k8s_client, '../Policy/block-traffic.yaml')
             return jsonify(code=200, data='OK')
         except Exception as e:
-            return jsonify(code=500, data='Internal Server Error')
+            return jsonify(code=500, data=str(e))
         
 
     elif request.method == 'DELETE':
@@ -77,7 +77,7 @@ def interact_pods():
             v1.delete_namespaced_pod(name=pod, namespace=namespace)
             return jsonify(code=200, data='OK')
         except Exception as e:
-            return jsonify(code=500, data='Internal Server Error')
+            return jsonify(code=500, data=str(e))
         
 
     else:
