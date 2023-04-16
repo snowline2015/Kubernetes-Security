@@ -44,11 +44,13 @@ def interact_pods():
     if request.method == 'GET':
         try:
             if pod and namespace:
-                data = v1.read_namespaced_pod(name=pod, namespace=namespace)
-                return jsonify(code=200, data=Pod(data=data).RAW)
+                res = v1.read_namespaced_pod(name=pod, namespace=namespace)
+                # return jsonify(code=200, data=Pod(data=res).RAW)
+                return jsonify(code=200, data=res)
             else:
-                data = v1.list_pod_for_all_namespaces(watch=False)
-                return jsonify(code=200, data=[Pod(data=item).RAW for item in data.items])
+                res = v1.list_pod_for_all_namespaces(watch=False)
+                # return jsonify(code=200, data=[Pod(data=item).RAW for item in res.items])
+                return jsonify(code=200, data=res)
         except Exception as e:
             return jsonify(code=500, data=str(e))
         
@@ -75,7 +77,7 @@ def interact_pods():
     elif request.method == 'DELETE':
         try:
             v1.delete_namespaced_pod(name=pod, namespace=namespace)
-            return jsonify(code=200, data={'pod': pod, 'namespace': namespace})
+            return jsonify(code=200, data='OK')
         except Exception as e:
             return jsonify(code=500, data=str(e))
         
