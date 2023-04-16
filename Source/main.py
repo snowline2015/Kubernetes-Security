@@ -1,8 +1,8 @@
 import json
 import yaml
 import subprocess
-from kubernetes import client, config, utils
-from flask import Flask, jsonify, request, Response
+from kubernetes import client, config, utils, ApiException
+from flask import Flask, jsonify, request
 
 
 # Flask API
@@ -29,6 +29,10 @@ class Pod:
         self.STATUS = data.get('status', {}).get('phase', '')
 
 
+    def attributes(self):
+        return {'name': self.NAME, 'namespace': self.NAMESPACE, 'kind': self.KIND, 'image': self.IMAGE, 'image_id': self.IMAGE_ID, 'ip': self.IP, 'host_ip': self.HOST_IP, 'status': self.STATUS}
+
+
 
 @app.route('/')
 def index():
@@ -45,14 +49,15 @@ def interact_pods():
         try:
             if pod and namespace:
                 res = v1.read_namespaced_pod(name=pod, namespace=namespace, _preload_content=False)
-                # return jsonify(code=200, data=Pod(data=res).RAW)
-                return Response(res)
+                return jsonify(code=200, data=Pod(data=json.loads(res)).attributes())
             else:
                 res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
-                # return jsonify(code=200, data=[Pod(data=item).RAW for item in res.items])
-                return Response(res)
-        except Exception as e:
-            return jsonify(code=500, data=str(e))
+                return jsonify(code=200, data=[Pod(data=item).attributes() for item in json.loads(res)['items']])
+        except ApiException as e:
+            if e.status == 404:
+                return jsonify(code=404, data='Not Found')
+            else:
+                return jsonify(code=500, data='Internal Server Error')
         
 
     elif request.method == 'POST':
@@ -70,16 +75,22 @@ def interact_pods():
         try:
             utils.create_from_yaml(k8s_client, '../Policy/block-traffic.yaml')
             return jsonify(code=200, data='OK')
-        except Exception as e:
-            return jsonify(code=500, data=str(e))
+        except ApiException as e:
+            if e.status == 409:
+                return jsonify(code=409, data='Conflict')
+            else:
+                return jsonify(code=500, data='Internal Server Error')
         
 
     elif request.method == 'DELETE':
         try:
             v1.delete_namespaced_pod(name=pod, namespace=namespace)
             return jsonify(code=200, data='OK')
-        except Exception as e:
-            return jsonify(code=500, data=str(e))
+        except ApiException as e:
+            if e.status == 404:
+                return jsonify(code=404, data='Not Found')
+            else:
+                return jsonify(code=500, data='Internal Server Error')
         
 
     else:
