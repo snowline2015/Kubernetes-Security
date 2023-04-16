@@ -1,7 +1,7 @@
 import json
 import yaml
-import subprocess
-from kubernetes import client, config, utils, ApiException
+from kubernetes import client, config, utils
+from kubernetes.client.exceptions import ApiException
 from flask import Flask, jsonify, request
 
 
