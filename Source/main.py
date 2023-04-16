@@ -2,7 +2,7 @@ import json
 import yaml
 import subprocess
 from kubernetes import client, config, utils
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 
 
 # Flask API
@@ -46,11 +46,11 @@ def interact_pods():
             if pod and namespace:
                 res = v1.read_namespaced_pod(name=pod, namespace=namespace, _preload_content=False)
                 # return jsonify(code=200, data=Pod(data=res).RAW)
-                return jsonify(code=200, data={'raw': res, 'data': json.loads(res.data)})
+                return Response(res)
             else:
                 res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
                 # return jsonify(code=200, data=[Pod(data=item).RAW for item in res.items])
-                return jsonify(code=200, data={'raw': res, 'data': json.loads(res.data)})
+                return Response(res)
         except Exception as e:
             return jsonify(code=500, data=str(e))
         
