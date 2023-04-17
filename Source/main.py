@@ -98,6 +98,24 @@ def interact_pods():
     
 
 
+received_data = {}
+@app.route('/api/v1/webhook-listener', methods=['GET', 'POST'])
+def webhook_listener():
+    if request.method == 'GET':
+        return jsonify(code=200, data=received_data)
+    elif request.method == 'POST':
+        received_data = request.get_json()
+        return jsonify(code=200, data='OK')
+    else:
+        return jsonify(code=400, data='Bad Request')
+    
+
+
+def auto_block_traffic():
+    pass
+    
+
+
 
 
 if __name__ == '__main__':
