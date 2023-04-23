@@ -1,5 +1,5 @@
-# Kubernetes Security API
-This is a Flask API that allows interacting with Kubernetes pods and implements an auto-blocking feature for incoming traffic based on certain policies.
+# API
+This is a Flask API that allows interacting with Kubernetes pods and implements an auto-blocking feature for ingress and egress traffic.
 
 &nbsp;
 
@@ -13,17 +13,15 @@ To use this API, you need to install the following dependencies:
 You can install these dependencies by running the following command:
 
 ```
-pip install kubernetes Flask
+python3 -m pip install -r requirements.txt
 ```
-
-&nbsp;
 
 ## Usage
 
 To use this API, you need to run the app.py file. You can do this by running the following command:
 
 ```
-python app.py
+python3 main.py
 ```
 
 By default, the API will be available at http://localhost:50000/.
@@ -53,7 +51,7 @@ Not implemented.
 
 **PUT /api/v1/pods**
 
-Creates a policy to block incoming traffic to a specific pod in a specific namespace. Requires pod and namespace query parameters. The policy is defined in a YAML file located at *Policy/block-traffic.yaml*.
+Creates a policy to block ingress and egress traffic to a specific pod in a specific namespace. Requires pod and namespace query parameters. The policy is defined in a YAML file located at *Policy/block-traffic.yaml*.
 
 &nbsp;
 
