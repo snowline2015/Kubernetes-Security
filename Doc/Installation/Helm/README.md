@@ -28,7 +28,9 @@ You can generate a new encryption key by running the following command:
 bin/kibana-encryption-keys generate -f -q
 ```
 
-[Generate Kibana encryption key](../../Images/kibana-encryptionKey.png)
+<p align="center">
+  <img src="../../Images/kibana-encryptionKey.png" alt="Generate Kibana encryption key"/>
+</p>
 
 ## Uninstall Kibana
 
