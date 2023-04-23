@@ -45,7 +45,7 @@ Then, apply the manifest file.
 kubectl apply -f k8s-agent.yaml
 ```
 
-> :warning: **Warning**: This is ECK so you need your subscription to be ***platinum*** to use some features. For example, you can't use **webhook** connector to send alerts.
+> **Warning**: This is ECK so you need your subscription to be ***platinum*** to use some features. For example, you can't use **webhook** connector to send alerts.
 > 
 > Therefore, it is recommended to install by [Helm](Kubernetes-Security/tree/main/Doc/Installation/Helm) instead.
 
