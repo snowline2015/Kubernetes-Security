@@ -44,7 +44,7 @@ metadata:
   labels:
     app.kubernetes.io/name: kube-sec
 rules:
-- apiGroups: [""]
+- apiGroups: ["", "metrics.k8s.io"]
   resources: ["*"]
   verbs: ["*"]
 ---
