@@ -129,11 +129,11 @@ def get_resource_usage():
     if not pod:
         return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
                                     'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
-                                    for item in json.loads(res)['items']])
+                                    for item in res['items']])
     else:
         return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
                                     'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
-                                    for item in json.loads(res)['items'] if item['metadata']['name'] == pod])
+                                    for item in res['items'] if item['metadata']['name'] == pod])
     
     
         
