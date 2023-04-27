@@ -3,6 +3,7 @@ import yaml
 from kubernetes import client, config, utils
 from kubernetes.client.exceptions import ApiException
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 
 # Flask API
@@ -141,3 +142,5 @@ def get_resource_usage():
 
 if __name__ == '__main__':
     app.run(debug=True, port=50000)
+    CORS(app)
+    
