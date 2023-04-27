@@ -18,9 +18,7 @@ spec:
       app.kubernetes.io/name: kube-sec
   type: ClusterIP
   ports:
-  - name: http
     port: 50000
-    targetPort: 50000
 ---
 
 
@@ -86,14 +84,3 @@ spec:
     ports:
     - containerPort: 50000
 ---
-
-
-      
-
-
-
-
-
-
-
-

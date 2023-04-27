@@ -8,6 +8,7 @@ from flask_cors import CORS
 
 # Flask API
 app = Flask(__name__)
+CORS(app)
 
 
 # Kubernetes API
@@ -142,5 +143,3 @@ def get_resource_usage():
 
 if __name__ == '__main__':
     app.run(debug=True, port=50000)
-    CORS(app)
-    
