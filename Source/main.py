@@ -13,6 +13,7 @@ app = Flask(__name__)
 config.load_incluster_config()
 v1 = client.CoreV1Api()
 k8s_client = client.ApiClient() 
+customAPI = client.CustomObjectsApi()
 
 
 
@@ -119,6 +120,14 @@ def auto_block_traffic():
     
 
 
+@app.route('/api/v1/resources', methods=['GET'])
+def get_resource_usage():
+    namespace = request.args.get('namespace', '')
+
+    resource = customAPI.list_namespaced_custom_object(group="metrics.k8s.io", version="v1beta1", namespace=namespace, plural="pods")
+    for pod in resource["items"]:
+        print(pod['containers'], "\n")
+        
 
 
 if __name__ == '__main__':
