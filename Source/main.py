@@ -13,7 +13,7 @@ app = Flask(__name__)
 config.load_incluster_config()
 v1 = client.CoreV1Api()
 k8s_client = client.ApiClient() 
-customAPI = client.CustomObjectsApi(k8s_client)
+customAPI = client.CustomObjectsApi()
 
 
 
@@ -125,8 +125,9 @@ def get_resource_usage():
     pod = request.args.get('pod', '')
     namespace = request.args.get('namespace', '')
 
-    res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
-    return jsonify(code=200, data=json.loads(res.data))
+    res = customAPI.list_namespaced_custom_object(group="metrics.k8s.io",version="v1beta1", namespace=namespace, plural="pods")
+    return jsonify(code=200, data=res)
+        
 
     
         
