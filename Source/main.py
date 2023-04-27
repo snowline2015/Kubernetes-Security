@@ -126,7 +126,7 @@ def get_resource_usage():
     namespace = request.args.get('namespace', '')
 
     res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
-    return jsonify(code=200, data=res)
+    return jsonify(code=200, data=json.loads(res.data))
 
     
         
