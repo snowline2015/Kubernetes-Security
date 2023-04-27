@@ -3,12 +3,10 @@ import yaml
 from kubernetes import client, config, utils
 from kubernetes.client.exceptions import ApiException
 from flask import Flask, jsonify, request
-from flask_cors import CORS
 
 
 # Flask API
 app = Flask(__name__)
-CORS(app)
 
 
 # Kubernetes API
