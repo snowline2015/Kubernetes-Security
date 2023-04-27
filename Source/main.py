@@ -126,9 +126,15 @@ def get_resource_usage():
     namespace = request.args.get('namespace', '')
 
     res = customAPI.list_namespaced_custom_object(group="metrics.k8s.io",version="v1beta1", namespace=namespace, plural="pods")
-    return jsonify(code=200, data=res)
-        
-
+    if not pod:
+        return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
+                                    'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
+                                    for item in json.loads(res.data)['items']])
+    else:
+        return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
+                                    'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
+                                    for item in json.loads(res.data)['items'] if item['metadata']['name'] == pod])
+    
     
         
 
