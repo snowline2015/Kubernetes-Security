@@ -13,7 +13,7 @@ app = Flask(__name__)
 config.load_incluster_config()
 v1 = client.CoreV1Api()
 k8s_client = client.ApiClient() 
-customAPI = client.CustomObjectsApi()
+customAPI = client.CustomObjectsApi(k8s_client)
 
 
 
