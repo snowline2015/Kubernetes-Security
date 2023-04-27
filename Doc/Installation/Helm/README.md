@@ -14,6 +14,13 @@ helm install elasticsearch elastic/elasticsearch -f elasticsearch.yaml
 helm install kibana elastic/kibana -f kibana.yaml
 ```
 
+Accessing Kibana by following URL:
+
+```
+http://{Node_IP}:{Kibana_Port}
+```
+
+
 ### Generate Kibana encryption key
 
 If you want to use the some features of Kibana, such as **Webhook** connector, you need to generate a new encryption key for Kibana.
@@ -48,14 +55,15 @@ kubectl delete secrets kibana-kibana-es-token
 
 ## Install K8s Agent
 
-You can follow the instructions when adding Elastic Agent from Kubernetes integration in Kibana. You need to modify the manifest file to add the ElasticSearch service IP and the password.
+You can follow the instructions when adding Elastic Agent from Kubernetes integration in Kibana. You need to modify the manifest file to add the ElasticSearch ***host*** and the ***password***.
 
-```
-    hosts:
-        - 'http://{ELASTICSEARCH_SERVICE_IP}:9200'
-    username: 'elastic'
-    password: '{ELASTICSEARCH_PASSWORD}'
-```
+<p align="center">
+  <img src="../../Images/edit-k8s-agent-elasticsearch-url.png" alt="Edit K8s Agent ElasticSearch URL"/>
+</p>
+
+<p align="center">
+  <img src="../../Images/edit-k8s-agent-elasticsearch-cred.png" alt="Edit K8s Agent ElasticSearch credentials"/>
+</p>
 
 Then, apply the manifest file.
 
