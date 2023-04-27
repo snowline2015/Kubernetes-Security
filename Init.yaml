@@ -7,31 +7,12 @@ metadata:
 
 
 apiVersion: v1
-kind: Service
-metadata:
-  name: kube-sec
-  namespace: kube-security
-  labels:
-    app.kubernetes.io/name: kube-sec
-spec:
-  selector:
-      app.kubernetes.io/name: kube-sec
-  type: ClusterIP
-  ports:
-  - port: 50000
-    targetPort: 50000
-    protocol: TCP
----
-
-
-
-apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kube-sec
   namespace: kube-security
   labels:
-    app.kubernetes.io/name: kube-sec
+    
 ---
 
 
@@ -41,8 +22,6 @@ kind: ClusterRole
 metadata:
   name: kube-sec
   namespace: kube-security
-  labels:
-    app.kubernetes.io/name: kube-sec
 rules:
 - apiGroups: ["", "metrics.k8s.io"]
   resources: ["*"]
@@ -56,8 +35,6 @@ kind: ClusterRoleBinding
 metadata:
   name: kube-sec
   namespace: kube-security
-  labels:
-    app.kubernetes.io/name: kube-sec
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -71,18 +48,47 @@ subjects:
 
 
 apiVersion: v1
-kind: Pod
+kind: Service
 metadata:
   name: kube-sec-be
   namespace: kube-security
   labels:
     app.kubernetes.io/name: kube-sec
 spec:
-  serviceAccountName: kube-sec
-  containers:
-  - name: kubernetes-security
-    image: snowline2015/kubernetes-security:latest
-    imagePullPolicy: Always
-    ports:
-    - containerPort: 50000
+  type: ClusterIP
+  ports:
+  - port: 50000
+    targetPort: 50000
+  selector:
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: kube-security-app
 ---
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-sec-be
+  namespace: kube-security
+  labels:
+    app.kubernetes.io/name: kube-sec
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/part-of: kube-security-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kube-sec
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: kube-security-app
+    spec:
+      serviceAccountName: kube-sec
+      containers:
+      - name: kubernetes-security
+        image: snowline2015/kubernetes-security:latest
+        ports:
+        - containerPort: 50000
