@@ -122,11 +122,13 @@ def auto_block_traffic():
 
 @app.route('/api/v1/resources', methods=['GET'])
 def get_resource_usage():
+    pod = request.args.get('pod', '')
     namespace = request.args.get('namespace', '')
 
-    resource = customAPI.list_namespaced_custom_object(group="metrics.k8s.io", version="v1beta1", namespace=namespace, plural="pods")
-    for pod in resource["items"]:
-        print(pod['containers'], "\n")
+    res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
+    return jsonify(code=200, data=res)
+
+    
         
 
 
