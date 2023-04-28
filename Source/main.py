@@ -105,6 +105,7 @@ def interact_pods():
 received_data = {}
 @app.route('/api/v1/webhook-listener', methods=['GET', 'POST'])
 def webhook_listener():
+    global received_data
     if request.method == 'GET':
         return jsonify(code=200, data=received_data)
     elif request.method == 'POST':

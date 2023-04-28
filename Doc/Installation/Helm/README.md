@@ -51,6 +51,7 @@ kubectl delete serviceaccount post-delete-kibana-kibana
 kubectl delete roles pre-install-kibana-kibana
 kubectl delete rolebindings pre-install-kibana-kibana
 kubectl delete job pre-install-kibana-kibana
+kubectl delete job post-delete-kibana-kibana
 kubectl delete secrets kibana-kibana-es-token
 ```
 
