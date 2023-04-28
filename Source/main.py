@@ -99,25 +99,30 @@ def interact_pods():
 
 
 
-    
-
-
-received_data = {}
-@app.route('/api/v1/webhook-listener', methods=['GET', 'POST'])
+@app.route('/api/v1/webhook-listener', methods=['POST'])
 def webhook_listener():
-    global received_data
-    if request.method == 'GET':
-        return jsonify(code=200, data=received_data)
-    elif request.method == 'POST':
-        received_data = request.get_json()
-        return jsonify(code=200, data='OK')
-    else:
-        return jsonify(code=400, data='Bad Request')
+    print(request.json)
+    # auto_block_traffic()
+    return jsonify(code=200, data='OK')
     
 
 
-def auto_block_traffic():
-    pass
+def auto_block_traffic(pod: str, namespace: str):
+    with open('../Policy/block-traffic.yaml', 'r') as f:
+            data = yaml.safe_load(f)
+    data['metadata']['namespace'] = namespace
+    data['spec']['podSelector']['matchLabels']['app.kubernetes.io/name'] = pod
+    with open('../Policy/block-traffic.yaml', 'w') as f:
+        yaml.dump(data, f)
+
+    try:
+        utils.create_from_yaml(k8s_client, '../Policy/block-traffic.yaml')
+        return jsonify(code=200, data='OK')
+    except ApiException as e:
+        if e.status == 409:
+            return jsonify(code=409, data='Conflict')
+        else:
+            return jsonify(code=500, data='Internal Server Error')
     
 
 
