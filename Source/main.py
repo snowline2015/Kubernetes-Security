@@ -3,10 +3,12 @@ import yaml
 from kubernetes import client, config, utils
 from kubernetes.client.exceptions import ApiException
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 
 # Flask API
 app = Flask(__name__)
+CORS(app)
 
 
 # Kubernetes API
@@ -98,12 +100,18 @@ def interact_pods():
         return jsonify(code=400, data='Bad Request')
 
 
-
-@app.route('/api/v1/webhook-listener', methods=['POST'])
+retrieved_data = {}
+@app.route('/api/v1/webhook-listener', methods=['GET', 'POST'])
 def webhook_listener():
-    print(request.json)
-    # auto_block_traffic()
-    return jsonify(code=200, data='OK')
+    global retrieved_data
+    if request.method == 'GET':
+        return jsonify(code=200, data=retrieved_data)
+    elif request.method == 'POST':
+        retrieved_data = request.json
+        # auto_block_traffic()
+        return jsonify(code=200, data='OK')
+    else:
+        return jsonify(code=400, data='Bad Request')
     
 
 
