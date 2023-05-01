@@ -14,4 +14,4 @@ RUN pip3 install -r Source/requirements.txt
 
 EXPOSE 50000
 
-CMD ["python3", "Source/main.py"]
+CMD ["python3", "Source/API.py"]
