@@ -11,6 +11,7 @@ from flask_cors import CORS
 
 # Flask API
 app = Flask(__name__)
+app.logger.disabled = True
 CORS(app)
 
 
