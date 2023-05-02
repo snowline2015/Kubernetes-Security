@@ -151,7 +151,7 @@ def get_logs():
     except:
         return jsonify(code=400, data='Bad Request')
 
-    if not os.path.exists('Logs/KUBE_SEC.log'):
+    if not os.path.exists('Log/KUBE_SEC.log'):
         return jsonify(code=500, data='Internal Server Error')
     
     logs = open('Log/KUBE_SEC.log', 'r').read().splitlines()
