@@ -75,7 +75,10 @@ def interact_pods():
     elif request.method == 'DELETE':
         try:
             v1.delete_namespaced_pod(name=pod, namespace=namespace, propagation_policy='Background', grace_period_seconds=0)
-            Logging(level='INFO', message=f'{pod} | {namespace} | DELETED BY USER').log()
+
+            Logging(level='INFO', message=f'{pod} | {namespace} | DELETED BY USER').log() if namespace else \
+                Logging(level='INFO', message=f'{pod} | default | DELETED BY USER').log()
+            
             return jsonify(code=200, data='OK')
         
         except ApiException as e:
@@ -145,6 +148,7 @@ def get_resource_usage():
 def get_logs():
     result = -1
     status = request.args.get('status', '')
+    raw = request.args.get("raw", default=False, type=bool)
 
     try:
         result = int(request.args.get('result', '-1'))
@@ -155,6 +159,9 @@ def get_logs():
         return jsonify(code=500, data='Internal Server Error')
     
     logs = open('Log/KUBE_SEC.log', 'r').read().splitlines()
+
+    if raw:
+        return jsonify(code=200, data=logs)
 
 
     def parse_log(log: str):
