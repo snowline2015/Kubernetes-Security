@@ -1,8 +1,9 @@
 import os
-from Entities import Pod
-from Logging import Logging
 import json
 import yaml
+import logging
+from Entities import Pod
+from Logging import Logging
 from kubernetes import client, config, utils
 from kubernetes.client.exceptions import ApiException
 from flask import Flask, request, jsonify
@@ -11,7 +12,7 @@ from flask_cors import CORS
 
 # Flask API
 app = Flask(__name__)
-app.logger.disabled = True
+logging.getLogger('werkzeug').disabled = True
 CORS(app)
 
 
