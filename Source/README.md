@@ -113,3 +113,17 @@ curl -X GET "http://localhost:50000/api/v1/resources?pod=kube-sec-be&namespace=k
 ```
 
 > **Note**: This endpoint requires the Metrics Server to be installed in the Kubernetes cluster. See the [Metrics Server](#metrics-server) section for more information.
+
+&nbsp;
+
+**GET /api/v1/logs**
+
+**Params**: *result, status*
+
+Returns a JSON response with information about the lastest logs of all the pods in all namespaces, or number of logs specified in the result query parameter. The status query parameter can be used to filter the logs by status, which can be either "blocked" or "deleted".
+
+Example: 
+```
+curl -X GET "http://localhost:50000/api/v1/logs?result=10&status=deleted"
+```
+
