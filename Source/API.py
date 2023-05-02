@@ -1,3 +1,4 @@
+import os
 from Entities import Pod
 from Logging import Logging
 import json
@@ -40,6 +41,7 @@ def interact_pods():
             else:
                 res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
                 return jsonify(code=200, data=[Pod(data=item).attributes() for item in json.loads(res.data)['items']])
+            
         except ApiException as e:
             if e.status == 404:
                 return jsonify(code=404, data='Not Found')
@@ -62,6 +64,7 @@ def interact_pods():
         try:
             utils.create_from_yaml(k8s_client, '../Policy/block-traffic.yaml')
             return jsonify(code=200, data='OK')
+        
         except ApiException as e:
             if e.status == 409:
                 return jsonify(code=409, data='Conflict')
@@ -72,10 +75,9 @@ def interact_pods():
     elif request.method == 'DELETE':
         try:
             v1.delete_namespaced_pod(name=pod, namespace=namespace, propagation_policy='Background', grace_period_seconds=0)
-            Logging(level='INFO', message=f'Pod {pod} in namespace {namespace} deleted').log()
+            Logging(level='INFO', message=f'{pod} | {namespace} | DELETED BY USER').log()
             return jsonify(code=200, data='OK')
         
-
         except ApiException as e:
             if e.status == 404:
                 return jsonify(code=404, data='Not Found')
@@ -137,6 +139,47 @@ def get_resource_usage():
                                     'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
                                     for item in res['items'] if item['metadata']['name'] == pod])
     
+
+
+@app.route('/api/v1/logs', methods=['GET'])
+def get_logs():
+    result = -1
+    status = request.args.get('status', '')
+
+    try:
+        result = int(request.args.get('result', '-1'))
+    except:
+        return jsonify(code=400, data='Bad Request')
+
+    if not os.path.exists('Logs/KUBE_SEC.log'):
+        return jsonify(code=500, data='Internal Server Error')
+    
+    logs = open('Log/KUBE_SEC.log', 'r').read().splitlines()
+
+
+    def parse_log(log: str):
+        return {
+            'timestamp': log.split('|')[0],
+            'level': log.split('|')[1],
+            'pod': log.split('|')[2],
+            'namespace': log.split('|')[3],
+            'message': log.split('|')[4]
+        } 
+
+
+    if result < -1 or result > len(logs):
+        return jsonify(code=400, data='Bad Request')
+    if result == -1:
+        if status:
+            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()])
+        else:
+            return jsonify(code=200, data=[parse_log(item) for item in logs])
+    else:
+        if status:
+            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()][-result:])
+        else:
+            return jsonify(code=200, data=[parse_log(item) for item in logs][-result:])
+
 
 
 

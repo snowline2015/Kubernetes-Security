@@ -1,3 +1,4 @@
+import os
 import logging
 
 
@@ -12,19 +13,22 @@ logging.addLevelName(HIGH, "HIGH")
 
 
 class Logging:
-    def __init__(self, log_name: str = 'KUBE_SEC.log', level: str = 'INFO', message: str = ''):
+    def __init__(self, log_name: str = 'Log/KUBE_SEC.log', level: str = 'INFO', message: str = ''):
         self.FILE_NAME = log_name
         self.LEVEL = level
         self.MESSAGE = message
+
+        if not os.path.exists('Log'):
+            os.mkdir('Log')
 
         if self.LEVEL not in ['INFO', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']:
             raise ValueError('Invalid log level')
         
         self.LOGGER = logging.getLogger()
         self.FORMAT = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        self.FILE_HANDLER = logging.FileHandler(self.FILE_NAME)
-        self.FILE_HANDLER.setFormatter(self.FORMAT)
-        self.LOGGER.addHandler(self.FILE_HANDLER)
+        self.HANDLER = logging.FileHandler(self.FILE_NAME)
+        self.HANDLER.setFormatter(self.FORMAT)
+        self.LOGGER.addHandler(self.HANDLER)
 
 
     def log(self):
@@ -47,4 +51,3 @@ class Logging:
         elif self.LEVEL == 'CRITICAL':
             self.LOGGER.setLevel(logging.CRITICAL)
             self.LOGGER.log(logging.CRITICAL, self.MESSAGE)
-            
