@@ -20,10 +20,27 @@ Accessing Kibana by following URL:
 http://{Node_IP}:{Kibana_Port}
 ```
 
+> **Note**: You can get the Node IP by running the following command:
 
-### Generate Kibana encryption key
+```
+kubectl get nodes -o wide
+```
 
-If you want to use the some features of Kibana, such as **Webhook** connector, you need to generate a new encryption key for Kibana.
+> **Note**: You can get the Kibana password by running the following command:
+
+```
+kubectl get secrets --namespace=default elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
+```
+
+&nbsp;
+
+## Configure Kibana
+
+### **Generate Kibana encryption key**
+
+If you want to use the some features of Kibana, such as **Webhook** connector, you need to generate a new encryption key for Kibana. The provided ***kibana.yaml*** file already contains the ***encryptionKey*** parameter. You can generate a new encryption key for yourself by following the steps below.
+
+First, you need to access the Kibana pod by running the following command:
 
 ```
 kubectl exec -it {kibana-pod-name} -- bash
@@ -39,7 +56,7 @@ bin/kibana-encryption-keys generate -f -q
   <img src="../../Images/kibana-encryptionKey.png" alt="Generate Kibana encryption key"/>
 </p>
 
-## Uninstall Kibana
+### **Uninstall Kibana**
 
 If you want to uninstall Kibana, you can completely remove it by running the following commands:
 
@@ -54,6 +71,8 @@ kubectl delete job pre-install-kibana-kibana
 kubectl delete job post-delete-kibana-kibana
 kubectl delete secrets kibana-kibana-es-token
 ```
+
+&nbsp;
 
 ## Install K8s Agent
 
@@ -82,5 +101,7 @@ Before deploying the K8s Agent, you need to edit the manifest file. There are 3 
 After editing the manifest file, you can deploy the K8s Agent by running the following command:
 
 ```
-kubectl apply -f k8s-agent.yaml
+kubectl apply -f elastic-agent-standalone-kubernetes.yaml
 ```
+
+> **Warning**: The provided manifest file is for example only. There is no guarantee that it will work properly in your environment. You need to follow the steps when adding Kubernetes integration in Kibana to generate the manifest file for your environment.
