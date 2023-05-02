@@ -81,23 +81,19 @@ Not implemented.
 
 Applies a traffic blocking policy to a specific pod in a specific namespace. Requires pod and namespace query parameters.
 
+```
+curl -X PUT "http://localhost:50000/api/v1/pods?pod=nginx&namespace=default"
+```
+
 &nbsp;
 
 **DELETE /api/v1/pods**
 
 Deletes a specific pod in a specific namespace. Requires pod and namespace query parameters.
 
-&nbsp;
-
-**GET /api/v1/webhook-listener**
-
-Returns a JSON response with the data received from a webhook listener. This endpoint is deplayed.
-
-&nbsp;
-
-**POST /api/v1/webhook-listener**
-
-Receives data from a webhook listener and stores it in memory. This endpoint is deplayed.
+```
+curl -X DELETE "http://localhost:50000/api/v1/pods?pod=nginx&namespace=default"
+```
 
 &nbsp;
 

@@ -97,7 +97,7 @@ def webhook_listener():
     if request.method == 'GET':
         return jsonify(code=200, data=retrieved_data)
     elif request.method == 'POST':
-        retrieved_data = request.json
+        retrieved_data = json.loads(request.data.decode('utf-8'))
         # auto_block_traffic()
         return jsonify(code=200, data='OK')
     else:
@@ -159,11 +159,11 @@ def get_logs():
 
     def parse_log(log: str):
         return {
-            'timestamp': log.split('|')[0],
-            'level': log.split('|')[1],
-            'pod': log.split('|')[2],
-            'namespace': log.split('|')[3],
-            'message': log.split('|')[4]
+            'timestamp': log.split(' | ')[0],
+            'level': log.split(' | ')[1],
+            'pod': log.split(' | ')[2],
+            'namespace': log.split(' | ')[3],
+            'message': log.split(' | ')[4]
         } 
 
 
