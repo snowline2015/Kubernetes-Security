@@ -12,8 +12,8 @@ from flask_cors import CORS
 
 # Flask API
 app = Flask(__name__)
-logging.getLogger('werkzeug').disabled = True
 CORS(app)
+logging.getLogger('werkzeug').disabled = True
 
 
 # Kubernetes API
@@ -150,7 +150,6 @@ def get_resource_usage():
 def get_logs():
     result = -1
     status = request.args.get('status', '')
-    raw = request.args.get("raw", default=False, type=bool)
 
     try:
         result = int(request.args.get('result', '-1'))
@@ -161,9 +160,6 @@ def get_logs():
         return jsonify(code=500, data='Internal Server Error')
     
     logs = open('Log/KUBE_SEC.log', 'r').read().splitlines()
-
-    if raw:
-        return jsonify(code=200, data=logs)
 
 
     def parse_log(log: str):
@@ -178,11 +174,16 @@ def get_logs():
 
     if result < -1 or result > len(logs):
         return jsonify(code=400, data='Bad Request')
-    if result == -1:
+    
+    elif result == 0:
+        return jsonify(code=200, data=[])
+
+    elif result == -1:
         if status:
             return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()])
         else:
             return jsonify(code=200, data=[parse_log(item) for item in logs])
+        
     else:
         if status:
             return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()][-result:])
