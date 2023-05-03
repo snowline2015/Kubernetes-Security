@@ -99,17 +99,31 @@ def interact_pods():
 request_data = ''
 request_get_data = ''
 request_json = {}
+error_data = ''
+error_get_data = ''
+error_json = ''
 error = ''
 @app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
-    global request_data, request_get_data, error
+    global request_data, request_get_data, request_json, error_data, error_get_data, error_json, error
     if request.method == 'POST':
 
         try:
             request_data = request.data.decode('utf-8')
-            request_get_data = request.get_data()
-            request_json = request.get_json()
+        except Exception as e:
+            error_data = str(e)
 
+        try:
+            request_get_data = request.get_data()
+        except Exception as e:
+            error_get_data = str(e)
+
+        try:
+            request_json = request.get_json()
+        except Exception as e:
+            error_json = str(e)
+
+        try:
             alert = json.loads(request.data.decode('utf-8'))
             alert_handler(alert)
             return jsonify(code=200, data='OK'), 200
@@ -119,8 +133,8 @@ def webhook_listener():
             return jsonify(code=500, data='Internal Server Error'), 500
         
     elif request.method == 'GET':
-        return jsonify(code=200, data={'request_data': request_data, 'request_get_data': request_get_data, 
-                                       'request_json': request_json, 'error': error}), 200
+        return jsonify(code=200, data={'request_data': request_data, 'request_get_data': request_get_data, 'request_json': request_json, 
+                                       'error_data': error_data, 'error_get_data': error_get_data, 'error_json': error_json, 'error': error}), 200
     
     else:
         return jsonify(code=400, data='Bad Request'), 400
