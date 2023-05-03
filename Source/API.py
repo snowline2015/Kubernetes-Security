@@ -26,7 +26,7 @@ customAPI = client.CustomObjectsApi()
 
 @app.route('/')
 def index():
-    return jsonify(code=200, data='Kubernetes Security')
+    return jsonify(code=200, data='Kubernetes Security'), 200
 
     
 
@@ -39,16 +39,16 @@ def interact_pods():
         try:
             if pod and namespace:
                 res = v1.read_namespaced_pod(name=pod, namespace=namespace, _preload_content=False)
-                return jsonify(code=200, data=Pod(data=json.loads(res.data)).attributes())
+                return jsonify(code=200, data=Pod(data=json.loads(res.data)).attributes()), 200
             else:
                 res = v1.list_pod_for_all_namespaces(watch=False,  _preload_content=False)
-                return jsonify(code=200, data=[Pod(data=item).attributes() for item in json.loads(res.data)['items']])
+                return jsonify(code=200, data=[Pod(data=item).attributes() for item in json.loads(res.data)['items']]), 200
             
         except ApiException as e:
             if e.status == 404:
-                return jsonify(code=404, data='Not Found')
+                return jsonify(code=404, data='Not Found'), 404
             else:
-                return jsonify(code=500, data='Internal Server Error')
+                return jsonify(code=500, data='Internal Server Error'), 500
         
 
     elif request.method == 'POST':
@@ -65,13 +65,13 @@ def interact_pods():
 
         try:
             utils.create_from_yaml(k8s_client, '../Policy/block-traffic.yaml')
-            return jsonify(code=200, data='OK')
+            return jsonify(code=200, data='OK'), 200
         
         except ApiException as e:
             if e.status == 409:
-                return jsonify(code=409, data='Conflict')
+                return jsonify(code=409, data='Conflict'), 409
             else:
-                return jsonify(code=500, data='Internal Server Error')
+                return jsonify(code=500, data='Internal Server Error'), 500
         
 
     elif request.method == 'DELETE':
@@ -81,17 +81,17 @@ def interact_pods():
             Logging(level='INFO', message=f'{pod} | {namespace} | DELETED BY USER').log() if namespace else \
                 Logging(level='INFO', message=f'{pod} | default | DELETED BY USER').log()
             
-            return jsonify(code=200, data='OK')
+            return jsonify(code=200, data='OK'), 200
         
         except ApiException as e:
             if e.status == 404:
-                return jsonify(code=404, data='Not Found')
+                return jsonify(code=404, data='Not Found'), 404
             else:
-                return jsonify(code=500, data='Internal Server Error')
+                return jsonify(code=500, data='Internal Server Error'), 500
         
 
     else:
-        return jsonify(code=400, data='Bad Request')
+        return jsonify(code=400, data='Bad Request'), 400
 
 
 
@@ -100,13 +100,13 @@ retrieved_data = {}
 def webhook_listener():
     global retrieved_data
     if request.method == 'GET':
-        return jsonify(code=200, data=retrieved_data)
+        return jsonify(code=200, data=retrieved_data), 200
     elif request.method == 'POST':
-        retrieved_data = )
+        retrieved_data = request.data
         # auto_block_traffic()
-        return jsonify(code=200, data='OK')
+        return jsonify(code=200, data='OK'), 200
     else:
-        return jsonify(code=400, data='Bad Request')
+        return jsonify(code=400, data='Bad Request'), 400
     
 
 
@@ -120,12 +120,12 @@ def auto_block_traffic(pod: str, namespace: str):
 
     try:
         utils.create_from_yaml(k8s_client, '../Policy/block-traffic.yaml')
-        return jsonify(code=200, data='OK')
+        return jsonify(code=200, data='OK'), 200
     except ApiException as e:
         if e.status == 409:
-            return jsonify(code=409, data='Conflict')
+            return jsonify(code=409, data='Conflict'), 409
         else:
-            return jsonify(code=500, data='Internal Server Error')
+            return jsonify(code=500, data='Internal Server Error'), 500
     
 
 
@@ -138,11 +138,11 @@ def get_resource_usage():
     if not pod:
         return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
                                     'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
-                                    for item in res['items']])
+                                    for item in res['items']]), 200
     else:
         return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
                                     'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
-                                    for item in res['items'] if item['metadata']['name'] == pod])
+                                    for item in res['items'] if item['metadata']['name'] == pod]), 200
     
 
 
