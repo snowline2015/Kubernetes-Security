@@ -109,7 +109,7 @@ def webhook_listener():
     if request.method == 'POST':
 
         try:
-            request_data = request.data.decode('utf-8')
+            request_data = request.args.get('body', '')
         except Exception as e:
             error_data = str(e)
 
