@@ -104,18 +104,21 @@ def webhook_listener():
     global request_data, request_get_data, error
     if request.method == 'POST':
 
-        request_data = request.data.decode('utf-8')
-        request_get_data = request.get_data().decode('utf-8')
+        request_data = request.data
+        request_get_data = request.get_data()
 
         try:
             alert = json.loads(request.data.decode('utf-8'))
             alert_handler(alert)
             return jsonify(code=200, data='OK'), 200
+        
         except Exception as e:
             error = str(e)
             return jsonify(code=500, data='Internal Server Error'), 500
+        
     elif request.method == 'GET':
         return jsonify(code=200, data={'request_data': request_data, 'request_get_data': request_get_data, 'error': error}), 200
+    
     else:
         return jsonify(code=400, data='Bad Request'), 400
     
