@@ -126,7 +126,7 @@ def alert_handler(data: dict):
 
     # To be enhanced, deleting pod for now
     v1.delete_namespaced_pod(name=pod_info['pod'], namespace=pod_info['namespace'], propagation_policy='Background', grace_period_seconds=0)
-    Logging(level={alert.get('severity', '')}, message=f"{pod_info['pod']}|{pod_info['namespace']}|DELETED BY RULE: {alert.get('name', '')}").log()
+    Logging(level={alert.get('severity', '').upper()}, message=f"{pod_info['pod']}|{pod_info['namespace']}|DELETED BY RULE: {alert.get('name', '')}").log()
 
 
 def alert_pod_info(log: dict):
