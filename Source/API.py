@@ -114,12 +114,12 @@ def webhook_listener():
             error_data = str(e)
 
         try:
-            request_get_data = request.get_data()
+            request_get_data = request.get_data().decode('utf-8')
         except Exception as e:
             error_get_data = str(e)
 
         try:
-            request_json = request.get_json()
+            request_json = request.get_json(force=True)
         except Exception as e:
             error_json = str(e)
 
@@ -133,8 +133,11 @@ def webhook_listener():
             return jsonify(code=500, data='Internal Server Error'), 500
         
     elif request.method == 'GET':
-        return jsonify(code=200, data={'request_data': request_data, 'request_get_data': request_get_data, 'request_json': request_json, 
+        try: 
+            return jsonify(code=200, data={'request_data': request_data, 'request_get_data': request_get_data, 'request_json': request_json, 
                                        'error_data': error_data, 'error_get_data': error_get_data, 'error_json': error_json, 'error': error}), 200
+        except Exception as e:
+            return jsonify(code=500, data=e), 500
     
     else:
         return jsonify(code=400, data='Bad Request'), 400
