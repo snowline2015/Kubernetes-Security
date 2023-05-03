@@ -114,18 +114,15 @@ def webhook_listener():
             return jsonify(code=500, data='Internal Server Error'), 500
         
     elif request.method == 'GET':
-        try: 
-            return jsonify(code=200, data=request_json), 200
-        except Exception as e:
-            return jsonify(code=500, data=e), 500
+        return jsonify(code=200, data={'request': request_json, 'error': error}), 200
     
     else:
         return jsonify(code=400, data='Bad Request'), 400
     
 
-def alert_handler(alert: dict):
-    pod_info = alert_pod_info(json.loads(alert.get('message', '{}')))
-    alert = alert.get('kibana', {}).get('alert', {}).get('rule', {})
+def alert_handler(data: dict):
+    pod_info = alert_pod_info(json.loads(data.get('message', '{}')))
+    alert = data.get('kibana', {}).get('alert', {}).get('rule', {})
 
     # To be enhanced, deleting pod for now
     v1.delete_namespaced_pod(name=pod_info['pod'], namespace=pod_info['namespace'], propagation_policy='Background', grace_period_seconds=0)
