@@ -96,13 +96,17 @@ def interact_pods():
 
 
 
-retrieved_data = ''
+request_data = ''
+request_get_data = ''
 error = ''
 @app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
-    global retrieved_data, error
+    global request_data, request_get_data, error
     if request.method == 'POST':
-        retrieved_data = request.data.decode('utf-8')
+
+        request_data = request.data.decode('utf-8')
+        request_get_data = request.get_data().decode('utf-8')
+
         try:
             alert = json.loads(request.data.decode('utf-8'))
             alert_handler(alert)
@@ -111,7 +115,7 @@ def webhook_listener():
             error = str(e)
             return jsonify(code=500, data='Internal Server Error'), 500
     elif request.method == 'GET':
-        return jsonify(code=200, data={'retrieved_data': retrieved_data, 'error': error}), 200
+        return jsonify(code=200, data={'request_data': request_data, 'request_get_data': request_get_data, 'error': error}), 200
     else:
         return jsonify(code=400, data='Bad Request'), 400
     
