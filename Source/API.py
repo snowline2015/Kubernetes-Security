@@ -100,7 +100,7 @@ retrieved_data = {}
 def webhook_listener():
     global retrieved_data
     if request.method == 'GET':
-        return jsonify(code=200, data=retrieved_data), 200
+        return jsonify(code=200, data=json.loads(retrieved_data)), 200
     elif request.method == 'POST':
         retrieved_data = request.get_data().decode('utf-8')
         # auto_block_traffic()
