@@ -97,14 +97,13 @@ def interact_pods():
 
 
 
-request_json = {}
+severity = ''
 error = ''
 @app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
     global request_json, error
     if request.method == 'POST':
         try:
-            request_json = request.get_json(force=True)
             alert = json.loads(request.get_json(force=True))
             alert_handler(alert)
             return jsonify(code=200, data='OK'), 200
@@ -114,19 +113,21 @@ def webhook_listener():
             return jsonify(code=500, data='Internal Server Error'), 500
         
     elif request.method == 'GET':
-        return jsonify(code=200, data={'request': request_json, 'error': error}), 200
+        return jsonify(code=200, data={'severity': severity, 'error': error}), 200
     
     else:
         return jsonify(code=400, data='Bad Request'), 400
     
 
 def alert_handler(data: dict):
+    global severity
     pod_info = alert_pod_info(json.loads(data.get('message', '{}')))
-    alert = data.get('kibana', {}).get('alert', {}).get('rule', {})
+    rule = data.get('kibana', {}).get('alert', {}).get('rule', {})
 
     # To be enhanced, deleting pod for now
+    severity = rule.get('severity', '').upper()
     v1.delete_namespaced_pod(name=pod_info['pod'], namespace=pod_info['namespace'], propagation_policy='Background', grace_period_seconds=0)
-    Logging(level={alert.get('severity', '').upper()}, message=f"{pod_info['pod']}|{pod_info['namespace']}|DELETED BY RULE: {alert.get('name', '')}").log()
+    Logging(level={rule.get('severity', '').upper()}, message=f"{pod_info['pod']}|{pod_info['namespace']}|DELETED BY RULE: {rule.get('name', '')}").log()
 
 
 def alert_pod_info(log: dict):
