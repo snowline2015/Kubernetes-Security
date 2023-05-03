@@ -96,13 +96,13 @@ def interact_pods():
 
 
 retrieved_data = {}
-@app.route('/api/v1/webhook-listener', methods=['GET', 'POST'])
+@app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
     global retrieved_data
     if request.method == 'GET':
         return jsonify(code=200, data=retrieved_data)
     elif request.method == 'POST':
-        retrieved_data = json.loads(request.data.decode('utf-8'))
+        retrieved_data = )
         # auto_block_traffic()
         return jsonify(code=200, data='OK')
     else:
@@ -150,16 +150,20 @@ def get_resource_usage():
 def get_logs():
     result = -1
     status = request.args.get('status', '')
+    raw = request.args.get('raw', default=False, type=bool)
 
     try:
         result = int(request.args.get('result', '-1'))
     except:
-        return jsonify(code=400, data='Bad Request')
+        return jsonify(code=400, data='Bad Request'), 400
 
     if not os.path.exists('Log/KUBE_SEC.log'):
-        return jsonify(code=500, data='Internal Server Error')
+        return jsonify(code=500, data='Internal Server Error'), 500
     
     logs = open('Log/KUBE_SEC.log', 'r').read().splitlines()
+
+    if raw:
+        return jsonify(code=200, data=logs), 200
 
 
     def parse_log(log: str):
@@ -173,22 +177,22 @@ def get_logs():
 
 
     if result < -1 or result > len(logs):
-        return jsonify(code=400, data='Bad Request')
+        return jsonify(code=400, data='Bad Request'), 400
     
     elif result == 0:
-        return jsonify(code=200, data=[])
+        return jsonify(code=200, data=[]), 200
 
     elif result == -1:
         if status:
-            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()])
+            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()]), 200
         else:
-            return jsonify(code=200, data=[parse_log(item) for item in logs])
+            return jsonify(code=200, data=[parse_log(item) for item in logs]), 200
         
     else:
         if status:
-            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()][-result:])
+            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()][-result:]), 200
         else:
-            return jsonify(code=200, data=[parse_log(item) for item in logs][-result:])
+            return jsonify(code=200, data=[parse_log(item) for item in logs][-result:]), 200
 
 
 

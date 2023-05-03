@@ -1,2 +1,5 @@
 ---
 imageTag: "8.7.0"
+
+replicas: 1
+minimumMasterNodes: 1
