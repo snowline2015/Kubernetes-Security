@@ -43,15 +43,18 @@ class Vulnerability:
         self.PACKAGE = data.get('PkgID', '')
         self.VERSION = data.get('InstalledVersion', '')
         self.LAYER = data.get('Layer', {})
-        self.DATASOURCE = data.get('DataSource', '')
+        self.DATASOURCE = data.get('DataSource', {})
         self.TITLE = data.get('Title', '')
         self.DESCRIPTION = data.get('Description', '')
         self.SEVERITY = data.get('Severity', '')
         self.CWE = data.get('CweIDs', [])
         self.CVSS = data.get('CVSS', {})
-        self.REFERENCES = data.get('References', [])
-        self.PUBLISHED_DATE = data.get('PublishedDate', '')
-        self.LAST_MODIFIED_DATE = data.get('LastModifiedDate', '')
+        # self.REFERENCES = data.get('References', [])
+        # self.PUBLISHED_DATE = data.get('PublishedDate', '')
+        # self.LAST_MODIFIED_DATE = data.get('LastModifiedDate', '')
+
+
+
 
 
 if __name__ == '__main__':

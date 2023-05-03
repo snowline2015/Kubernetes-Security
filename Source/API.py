@@ -4,6 +4,7 @@ import yaml
 import logging
 from Entities import Pod
 from Logging import Logging
+from Trivy import Trivy
 from kubernetes import client, config, utils
 from kubernetes.client.exceptions import ApiException
 from flask import Flask, request, jsonify
@@ -95,38 +96,41 @@ def interact_pods():
 
 
 
-retrieved_data = {}
-@app.route('/api/v1/webhook', methods=['GET', 'POST'])
+@app.route('/api/v1/webhook', methods=['POST'])
 def webhook_listener():
-    global retrieved_data
-    if request.method == 'GET':
-        return jsonify(code=200, data=json.loads(retrieved_data)), 200
-    elif request.method == 'POST':
-        retrieved_data = request.get_data().decode('utf-8')
-        # auto_block_traffic()
-        return jsonify(code=200, data='OK'), 200
+    if request.method == 'POST':
+        try:
+            alert = json.loads(request.data.decode('utf-8'))
+            alert_handler(alert)
+            return jsonify(code=200, data='OK'), 200
+        except:
+            return jsonify(code=500, data='Internal Server Error'), 500
     else:
         return jsonify(code=400, data='Bad Request'), 400
     
 
+def alert_handler(alert: dict):
+    pod_info = alert_pod_info(json.loads(alert.get('message', '{}')))
+    alert = alert.get('kibana', {}).get('alert', {}).get('rule', {})
 
-def auto_block_traffic(pod: str, namespace: str):
-    with open('../Policy/block-traffic.yaml', 'r') as f:
-            data = yaml.safe_load(f)
-    data['metadata']['namespace'] = namespace
-    data['spec']['podSelector']['matchLabels']['app.kubernetes.io/name'] = pod
-    with open('../Policy/block-traffic.yaml', 'w') as f:
-        yaml.dump(data, f)
-
+    # To be enhanced, deleting pod for now
     try:
-        utils.create_from_yaml(k8s_client, '../Policy/block-traffic.yaml')
-        return jsonify(code=200, data='OK'), 200
-    except ApiException as e:
-        if e.status == 409:
-            return jsonify(code=409, data='Conflict'), 409
-        else:
-            return jsonify(code=500, data='Internal Server Error'), 500
-    
+        v1.delete_namespaced_pod(name=pod_info['pod'], namespace=pod_info['namespace'], propagation_policy='Background', grace_period_seconds=0)
+        Logging(level={alert.get('severity', '')}, message=f"{pod_info['pod']}|{pod_info['namespace']}|DELETED BY RULE: {alert.get('name', '')}").log()
+    except:
+        pass
+
+
+def alert_pod_info(log: dict):
+    pod = log.get('process_exec', {}).get('process', {}).get('pod', {})
+    return {
+        'namespace': pod.get('namespace', ''),
+        'pod': pod.get('name', ''),
+        'imageID': pod.get('container', {}).get('image', {}).get('id', '').split('/')[-1],
+        'image': pod.get('container', {}).get('image', {}).get('name', ''),
+        'labels': pod.get('pod_labels', {})
+    }
+
 
 
 @app.route('/api/v1/resources', methods=['GET'])

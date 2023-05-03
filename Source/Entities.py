@@ -13,4 +13,3 @@ class Pod:
 
     def attributes(self):
         return {'name': self.NAME, 'namespace': self.NAMESPACE, 'kind': self.KIND, 'image': self.IMAGE, 'image_id': self.IMAGE_ID, 'ip': self.IP, 'host_ip': self.HOST_IP, 'status': self.STATUS}
-
