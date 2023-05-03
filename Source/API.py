@@ -75,9 +75,12 @@ def interact_pods():
         
 
     elif request.method == 'DELETE':
+        if not pod or not namespace:
+            return jsonify(code=400, data='Bad Request'), 400
+
         try:
             v1.delete_namespaced_pod(name=pod, namespace=namespace, propagation_policy='Background', grace_period_seconds=0)
-            Logging(level='INFO', message=f'{pod} | {namespace} | DELETED BY USER').log()
+            Logging(level='INFO', message=f'{pod}|{namespace}|DELETED BY USER').log()
             return jsonify(code=200, data='OK'), 200
         
         except ApiException as e:
@@ -165,11 +168,11 @@ def get_logs():
 
     def parse_log(log: str):
         return {
-            'timestamp': log.split(' | ')[0],
-            'level': log.split(' | ')[1],
-            'pod': log.split(' | ')[2],
-            'namespace': log.split(' | ')[3],
-            'message': log.split(' | ')[4]
+            'timestamp': log.split('|')[0],
+            'level': log.split('|')[1],
+            'pod': log.split('|')[2],
+            'namespace': log.split('|')[3],
+            'message': log.split('|')[4]
         } 
 
 

@@ -25,7 +25,7 @@ class Logging:
             raise ValueError('Invalid log level')
         
         self.LOGGER = logging.getLogger()
-        self.FORMAT = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+        self.FORMAT = logging.Formatter('%(asctime)s|%(levelname)s|%(message)s')
         self.HANDLER = logging.FileHandler(self.FILE_NAME)
         self.HANDLER.setFormatter(self.FORMAT)
         self.LOGGER.addHandler(self.HANDLER)
