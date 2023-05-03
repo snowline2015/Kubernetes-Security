@@ -77,10 +77,7 @@ def interact_pods():
     elif request.method == 'DELETE':
         try:
             v1.delete_namespaced_pod(name=pod, namespace=namespace, propagation_policy='Background', grace_period_seconds=0)
-
-            Logging(level='INFO', message=f'{pod} | {namespace} | DELETED BY USER').log() if namespace else \
-                Logging(level='INFO', message=f'{pod} | default | DELETED BY USER').log()
-            
+            Logging(level='INFO', message=f'{pod} | {namespace} | DELETED BY USER').log()
             return jsonify(code=200, data='OK'), 200
         
         except ApiException as e:
@@ -158,7 +155,7 @@ def get_logs():
         return jsonify(code=400, data='Bad Request'), 400
 
     if not os.path.exists('Log/KUBE_SEC.log'):
-        return jsonify(code=500, data='Internal Server Error'), 500
+        return jsonify(code=200, data=[]), 200
     
     logs = open('Log/KUBE_SEC.log', 'r').read().splitlines()
 
@@ -176,21 +173,21 @@ def get_logs():
         } 
 
 
-    if result < -1 or result > len(logs):
+    if result < -1:
         return jsonify(code=400, data='Bad Request'), 400
     
     elif result == 0:
         return jsonify(code=200, data=[]), 200
 
-    elif result == -1:
+    elif result == -1 or result > len(logs):
         if status:
-            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()]), 200
+            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in parse_log(item)['message'].lower()]), 200
         else:
             return jsonify(code=200, data=[parse_log(item) for item in logs]), 200
         
     else:
         if status:
-            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in item.lower()][-result:]), 200
+            return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in parse_log(item)['message'].lower()][-result:]), 200
         else:
             return jsonify(code=200, data=[parse_log(item) for item in logs][-result:]), 200
 
