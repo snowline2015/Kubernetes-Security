@@ -25,11 +25,15 @@ customAPI = client.CustomObjectsApi()
 
 
 
+
+
 @app.route('/')
 def index():
     return jsonify(code=200, data='Kubernetes Security'), 200
 
     
+
+
 
 @app.route('/api/v1/pods', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def interact_pods():
@@ -57,7 +61,7 @@ def interact_pods():
 
 
     elif request.method == 'PUT':
-        with open('../Policy/block-traffic.yaml', 'r') as f:
+        with open('Policy/block-traffic.yaml', 'r') as f:
             data = yaml.safe_load(f)
         data['metadata']['namespace'] = namespace
         data['spec']['podSelector']['matchLabels']['app.kubernetes.io/name'] = pod
@@ -96,6 +100,37 @@ def interact_pods():
 
 
 
+
+
+@app.route('/api/v1/scan', methods=['GET', 'POST'])
+def scan_image():
+    pod = request.args.get('pod', '')
+    namespace = request.args.get('namespace', '')
+
+    if request.method == 'GET':
+        pass
+
+    elif request.method == 'POST':
+        if not pod or not namespace:
+            return jsonify(code=400, data='Bad Request'), 400
+
+        try:
+            res = v1.read_namespaced_pod(name=pod, namespace=namespace, _preload_content=False)
+            pod_info = Pod(data=json.loads(res.data)).attributes()
+            trivy = Trivy()
+            trivy.scan(pod_info['image_id'])
+            return jsonify(code=200, data=trivy.result()), 200
+
+        except ApiException as e:
+            if e.status == 404:
+                return jsonify(code=404, data='Not Found'), 404
+            else:
+                return jsonify(code=500, data='Internal Server Error'), 500
+
+
+
+
+
 @app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
     if request.method == 'POST':
@@ -109,6 +144,7 @@ def webhook_listener():
         return jsonify(code=400, data='Bad Request'), 400
     
 
+
 def alert_handler(data: dict):
     pod_info = alert_pod_info(json.loads(data.get('message', '{}')))
     rule = data.get('kibana', {}).get('alert', {}).get('rule', {})
@@ -116,6 +152,7 @@ def alert_handler(data: dict):
     # To be enhanced, deleting pod for now
     v1.delete_namespaced_pod(name=pod_info['pod'], namespace=pod_info['namespace'], propagation_policy='Background', grace_period_seconds=0)
     Logging(level=rule.get('severity', '').upper(), message=f"{pod_info['pod']}|{pod_info['namespace']}|DELETED BY RULE: {rule.get('name', '')}").log()
+
 
 
 def alert_pod_info(log: dict):
@@ -127,6 +164,8 @@ def alert_pod_info(log: dict):
         'image': pod.get('container', {}).get('image', {}).get('name', ''),
         'labels': pod.get('pod_labels', {})
     }
+
+
 
 
 
@@ -145,6 +184,8 @@ def get_resource_usage():
                                     'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
                                     for item in res['items'] if item['metadata']['name'] == pod]), 200
     
+
+
 
 
 @app.route('/api/v1/logs', methods=['GET'])
