@@ -1,15 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "kubernetes-security.fullname" . }}
+  name: kube-sec-be
+  namespace: kube-security
   labels:
-    {{- include "kubernetes-security.labels" . | nindent 4 }}
+    app.kubernetes.io/name: kube-sec
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+  - port: 50000
+    targetPort: 50000
   selector:
-    {{- include "kubernetes-security.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/name: kube-sec

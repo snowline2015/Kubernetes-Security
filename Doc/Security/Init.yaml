@@ -11,7 +11,8 @@ kind: ServiceAccount
 metadata:
   name: kube-sec
   namespace: kube-security
-  labels:
+  labels: 
+    app.kubernetes.io/name: kube-sec
     
 ---
 

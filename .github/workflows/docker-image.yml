@@ -6,7 +6,6 @@ on:
     paths-ignore:
       - "**.md"
       - "Doc/**"
-      - "Init.yaml"
       - "**.ndjson"
       - "helm-chart/**"
   pull_request:
