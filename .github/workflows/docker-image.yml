@@ -8,6 +8,7 @@ on:
       - "Doc/**"
       - "Init.yaml"
       - "**.ndjson"
+      - "helm-chart/**"
   pull_request:
     branches: [ "main" ]
 
