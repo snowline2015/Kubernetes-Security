@@ -1,14 +1,10 @@
-elasticsearch:
-  imageTag: "8.7.0"
-  replicas: 1
-  minimumMasterNodes: 1
+namespace: kube-security
 
-kibana:
-  imageTag: "8.7.0"
-  service:
-    type: LoadBalancer
-  kibanaConfig:
-    kibana.yml: |
-      xpack.encryptedSavedObjects.encryptionKey: 76bcadbab2ebebb41fbd027ba87a3d14
-      xpack.reporting.encryptionKey: 4db9104f0c972a10cc086e7b6ab31a25
-      xpack.security.encryptionKey: e644d841d54ab57536f61c7422d0075b
+image:
+  repository: snowline2015/kubernetes-security
+  tag: latest
+
+service:
+  name: kube-sec-be
+  type: ClusterIP
+  port: 50000
