@@ -1,0 +1,3 @@
+[submodule "Doc/Security/tetragon_fe"]
+	path = Doc/Security/tetragon_fe
+	url = https://github.com/huyvdq2/tetragon_fe
