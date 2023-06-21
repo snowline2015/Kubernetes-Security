@@ -1,0 +1,12 @@
+apiVersion: v2
+name: kubernetes-security
+description: Security for Kubernetes
+version: 0.1.0
+
+dependencies:
+  - name: elasticsearch
+    version: "*"
+    repository: https://helm.elastic.co
+  - name: kibana
+    version: "*"
+    repository: https://helm.elastic.co
