@@ -174,18 +174,15 @@ def get_resource_usage():
     pod = request.args.get('pod', '')
     namespace = request.args.get('namespace', '')
 
-    try:
-        res = customAPI.list_namespaced_custom_object(group="metrics.k8s.io",version="v1beta1", namespace=namespace, plural="pods")
-        if not pod:
-            return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
-                                        'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
-                                        for item in res['items']]), 200
-        else:
-            return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
-                                        'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
-                                        for item in res['items'] if item['metadata']['name'] == pod]), 200
-    except Exception as e:
-        return jsonify(code=500, data=e), 500
+    res = customAPI.list_namespaced_custom_object(group="metrics.k8s.io",version="v1beta1", namespace=namespace, plural="pods")
+    if not pod:
+        return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
+                                    'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
+                                    for item in res['items']]), 200
+    else:
+        return jsonify(code=200, data=[{'name': item['metadata']['name'], 'namespace': item['metadata']['namespace'],
+                                    'cpu': item['containers'][0]['usage']['cpu'], 'memory': item['containers'][0]['usage']['memory']} 
+                                    for item in res['items'] if item['metadata']['name'] == pod]), 200
     
 
 
