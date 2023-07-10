@@ -153,8 +153,8 @@ def webhook_listener():
             haha = 'wtf'
             return jsonify(code=500, data='Internal Server Error'), 500
         
-    # elif request.method == 'GET':
-    #     return jsonify(code=200, data={'haha': str(haha), 'ok': str(ok)}), 200
+    elif request.method == 'GET':
+        return jsonify(code=200, data={'haha': str(haha), 'ok': str(ok)}), 200
 
     else:
         return jsonify(code=400, data='Bad Request'), 400
