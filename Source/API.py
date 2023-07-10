@@ -137,15 +137,12 @@ ok = None
 @app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
 
-    global haha
-
     if request.method == 'POST':
         try:
             alert = json.loads(request.get_json(force=True))
             alert_handler(alert)
             return jsonify(code=200, data='OK'), 200
         except Exception as e:
-            haha = 'wtf1'
             pass
             
         try:
@@ -153,7 +150,6 @@ def webhook_listener():
             alert_handler(alert)
             return jsonify(code=200, data='OK'), 200
         except Exception as e:
-            haha = 'wtf2'
             return jsonify(code=500, data='Internal Server Error'), 500
         
     elif request.method == 'GET':
@@ -168,7 +164,7 @@ def alert_handler(data: dict):
 
     global ok
 
-    ok = 'nice'
+    ok = str(data)
 
     pod_info = alert_pod_info(json.loads(data.get('message', '{}')))
     rule = data.get('kibana', {}).get('alert', {}).get('rule', {})
@@ -180,6 +176,11 @@ def alert_handler(data: dict):
 
 
 def alert_pod_info(log: dict):
+
+    global haha
+
+    haha = str(log)
+
     if 'process_exec' in log:
         pod = log.get('process_exec', {}).get('process', {}).get('pod', {})
     elif 'process_kprobe' in log:
