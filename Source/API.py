@@ -131,6 +131,9 @@ def scan_image():
 
 
 
+haha = None
+ok = None
+
 @app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
     if request.method == 'POST':
@@ -140,6 +143,12 @@ def webhook_listener():
             return jsonify(code=200, data='OK'), 200
         except Exception as e:
             return jsonify(code=500, data='Internal Server Error'), 500
+        
+    elif request.method == 'GET':
+        global haha
+        global ok
+        return jsonify(code=200, data={'haha': str(haha), 'ok': str(ok)}), 200
+
     else:
         return jsonify(code=400, data='Bad Request'), 400
     
@@ -156,10 +165,17 @@ def alert_handler(data: dict):
 
 
 def alert_pod_info(log: dict):
+    global haha
+    global ok
+
+    haha = log
+    
     if 'process_exec' in log:
         pod = log.get('process_exec', {}).get('process', {}).get('pod', {})
     elif 'process_kprobe' in log:
         pod = log.get('process_kprobe', {}).get('process', {}).get('pod', {})
+
+        ok = pod
 
     return {
         'namespace': pod.get('namespace', ''),
