@@ -142,18 +142,19 @@ def webhook_listener():
 
     if request.method == 'POST':
         try:
-
-            ok = 'nice'
-
             alert = json.loads(request.get_json(force=True))
+
+            ok = str(request.form)
+
             alert_handler(alert)
             return jsonify(code=200, data='OK'), 200
+        
         except Exception as e:
+            haha = 'wtf'
             return jsonify(code=500, data='Internal Server Error'), 500
         
-    elif request.method == 'GET':
-        
-        return jsonify(code=200, data={'haha': str(haha), 'ok': str(ok)}), 200
+    # elif request.method == 'GET':
+    #     return jsonify(code=200, data={'haha': str(haha), 'ok': str(ok)}), 200
 
     else:
         return jsonify(code=400, data='Bad Request'), 400
@@ -161,10 +162,6 @@ def webhook_listener():
 
 
 def alert_handler(data: dict):
-
-    global haha
-
-    haha = str(data)
 
     pod_info = alert_pod_info(json.loads(data.get('message', '{}')))
     rule = data.get('kibana', {}).get('alert', {}).get('rule', {})
