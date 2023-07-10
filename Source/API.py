@@ -156,7 +156,11 @@ def alert_handler(data: dict):
 
 
 def alert_pod_info(log: dict):
-    pod = log.get('process_exec', {}).get('process', {}).get('pod', {})
+    if 'process_exec' in log:
+        pod = log.get('process_exec', {}).get('process', {}).get('pod', {})
+    elif 'process_kprobe' in log:
+        pod = log.get('process_kprobe', {}).get('process', {}).get('pod', {})
+
     return {
         'namespace': pod.get('namespace', ''),
         'pod': pod.get('name', ''),
