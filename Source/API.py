@@ -137,6 +137,7 @@ ok = None
 @app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
 
+    global haha
     global ok
 
     if request.method == 'POST':
@@ -151,8 +152,7 @@ def webhook_listener():
             return jsonify(code=500, data='Internal Server Error'), 500
         
     elif request.method == 'GET':
-        global haha
-        global ok
+        
         return jsonify(code=200, data={'haha': str(haha), 'ok': str(ok)}), 200
 
     else:
