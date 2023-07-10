@@ -168,14 +168,14 @@ def alert_pod_info(log: dict):
     global haha
     global ok
 
-    haha = log
+    haha = "yeah"
     
     if 'process_exec' in log:
         pod = log.get('process_exec', {}).get('process', {}).get('pod', {})
     elif 'process_kprobe' in log:
         pod = log.get('process_kprobe', {}).get('process', {}).get('pod', {})
 
-        ok = pod
+        ok = "wtf"
 
     return {
         'namespace': pod.get('namespace', ''),
