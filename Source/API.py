@@ -142,9 +142,12 @@ def webhook_listener():
 
     if request.method == 'POST':
         try:
+
+            ok = str(request.get_json(force=True))
+            
             alert = json.loads(request.get_json(force=True))
 
-            ok = str(request.form)
+            
 
             alert_handler(alert)
             return jsonify(code=200, data='OK'), 200
