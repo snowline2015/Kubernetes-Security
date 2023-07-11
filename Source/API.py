@@ -131,29 +131,24 @@ def scan_image():
 
 
 
-haha = None
-ok = None
-
 @app.route('/api/v1/webhook', methods=['GET', 'POST'])
 def webhook_listener():
 
     if request.method == 'POST':
         try:
             alert = json.loads(request.get_json(force=True))
-            alert_handler(alert)
-            return jsonify(code=200, data='OK'), 200
-        except Exception as e:
-            pass
+        except json.JSONDecodeError as e:
+            decoder = json.JSONDecoder(object_pairs_hook=dict)
+            alert, _ = decoder.raw_decode(request.get_json(force=True))
             
         try:
-            alert = request.get_json(force=True)
             alert_handler(alert)
             return jsonify(code=200, data='OK'), 200
         except Exception as e:
             return jsonify(code=500, data='Internal Server Error'), 500
         
-    elif request.method == 'GET':
-        return jsonify(code=200, data={'haha': str(haha), 'ok': str(ok)}), 200
+    # elif request.method == 'GET':
+    #     return jsonify(code=200, data={'temp1': str(temp1), 'temp2': str(temp)}), 200
 
     else:
         return jsonify(code=400, data='Bad Request'), 400
@@ -161,10 +156,6 @@ def webhook_listener():
 
 
 def alert_handler(data: dict):
-
-    global ok
-
-    ok = str(data)
 
     pod_info = alert_pod_info(json.loads(data.get('message', '{}')))
     rule = data.get('kibana', {}).get('alert', {}).get('rule', {})
@@ -176,10 +167,6 @@ def alert_handler(data: dict):
 
 
 def alert_pod_info(log: dict):
-
-    global haha
-
-    haha = str(log)
 
     if 'process_exec' in log:
         pod = log.get('process_exec', {}).get('process', {}).get('pod', {})
