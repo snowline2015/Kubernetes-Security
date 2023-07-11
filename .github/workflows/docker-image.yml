@@ -7,7 +7,7 @@ on:
       - "**.md"
       - "Doc/**"
       - "**.ndjson"
-      - "helm-chart/**"
+      - "Automation/**"
   pull_request:
     branches: [ "main" ]
 

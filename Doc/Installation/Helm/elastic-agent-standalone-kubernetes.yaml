@@ -12,7 +12,7 @@ data:
       default:
         type: elasticsearch
         hosts:
-          - 'https://10.96.119.91:9200'
+          - 'https://elasticsearch-master:9200'
         username: '${ES_USERNAME}'
         password: '${ES_PASSWORD}'
         ssl.verification_mode: none
@@ -854,7 +854,7 @@ spec:
               value: "elastic"
             # The basic authentication password used to connect to Elasticsearch
             - name: ES_PASSWORD
-              value: "auKdzjrEz3d4SsJL"
+              value: "changeme"
             - name: NODE_NAME
               valueFrom:
                 fieldRef:
