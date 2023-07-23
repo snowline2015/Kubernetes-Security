@@ -267,7 +267,7 @@ def interact_security_rules():
     if not username or not password:
         username = 'elastic'
         secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
-        password = base64.b64decode(json.loads(secret.data['password'])).decode('utf-8')
+        password = base64.b64decode(json.loads(secret.data.get('data', {}).get('password',''))).decode('utf-8')
 
     session = requests.Session()
     session.auth = (username, password)
@@ -278,9 +278,13 @@ def interact_security_rules():
         if rule_id:
             res = session.get(f'{base_url}/rules/{rule_id}')
             return jsonify(code=200, data=json.loads(res.text)), 200
+        
         else:
-            res = session.get(f'{base_url}/rules')
-            return jsonify(code=200, data=json.loads(res.text)), 200
+            res = session.get(f'{base_url}/rules/_find', params={'per_page': 100}).json()
+            while res.get('total', 0) > len(res.get('data', [])):
+                temp = session.get(f'{base_url}/rules/_find', params={'per_page': 100, 'page': res.get('page', 1) + 1}).json()
+                res['data'].extend(temp.get('data', []))
+            return jsonify(code=200, data=res.get('data', [])), 200
 
 
     elif request.method == 'POST':
