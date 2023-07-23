@@ -264,9 +264,14 @@ def interact_security_rules():
     password = request.args.get('password', '')
     rule_id = request.args.get('rule_id', '')
 
-    if not username or not password:
+    if not username:
         username = 'elastic'
+
+    if not password:
         secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
+
+        return jsonify(code=200, data=json.loads(secret.data)), 200
+
         password = base64.b64decode(json.loads(secret.data.get('data', {}).get('password',''))).decode('utf-8')
 
     session = requests.Session()
@@ -277,7 +282,7 @@ def interact_security_rules():
     if request.method == 'GET':
         if rule_id:
             res = session.get(f'{base_url}/rules/{rule_id}')
-            return jsonify(code=200, data=json.loads(res.text)), 200
+            return jsonify(code=res.status_code, data=json.loads(res.text)), res.status_code
         
         else:
             res = session.get(f'{base_url}/rules/_find', params={'per_page': 100}).json()
@@ -300,7 +305,11 @@ def interact_security_rules():
             return jsonify(code=400, data='Bad Request'), 400
 
         res = session.delete(f'{base_url}/rules/{rule_id}')
-        return jsonify(code=200, data=json.loads(res.text)), 200
+        return jsonify(code=res.status_code, data=json.loads(res.text)), res.status_code
+    
+
+    else:
+        return jsonify(code=400, data='Bad Request'), 400
         
 
 
