@@ -33,8 +33,7 @@ ip = subprocess.run("kubectl get service --namespace=default elasticsearch-maste
                     shell=True, capture_output=True, text=True).stdout
 
 ## Edit
-manifest = requests.get('https://raw.githubusercontent.com/snowline2015/Kubernetes-Security/'
-                            'main/Doc/Installation/Helm/elastic-agent-standalone-kubernetes.yaml').text
+manifest = requests.get('https://raw.githubusercontent.com/snowline2015/Kubernetes-Security/main/Doc/Installation/Helm/elastic-agent-standalone-kubernetes.yaml').text
 manifest = manifest.replace('https://elasticsearch-master:9200', f'https://{ip}:9200')
 manifest = manifest.replace('changeme', secret)
 

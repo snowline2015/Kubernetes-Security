@@ -2,6 +2,8 @@ import os
 import json
 import yaml
 import logging
+import base64
+import requests
 from Entities import Pod
 from Logging import Logging
 from Trivy import Trivy
@@ -251,6 +253,51 @@ def get_logs():
             return jsonify(code=200, data=[parse_log(item) for item in logs if status.lower() in parse_log(item)['message'].lower()][-result:]), 200
         else:
             return jsonify(code=200, data=[parse_log(item) for item in logs][-result:]), 200
+
+
+
+
+
+@app.route('/api/v1/rules', methods=['GET', 'POST', 'PATCH', 'DELETE'])
+def interact_security_rules():
+    username = request.args.get('username', '')
+    password = request.args.get('password', '')
+    rule_id = request.args.get('rule_id', '')
+
+    if not username or not password:
+        username = 'elastic'
+        secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
+        password = base64.b64decode(json.loads(secret.data['password'])).decode('utf-8')
+
+    session = requests.Session()
+    session.auth = (username, password)
+    session.headers.update({'kbn-xsrf': 'true', 'Content-Type': 'application/json'})
+    base_url = 'http://kibana-kibana.default.svc.cluster.local:5601/api/detection_engine'
+
+    if request.method == 'GET':
+        if rule_id:
+            res = session.get(f'{base_url}/rules/{rule_id}')
+            return jsonify(code=200, data=json.loads(res.text)), 200
+        else:
+            res = session.get(f'{base_url}/rules')
+            return jsonify(code=200, data=json.loads(res.text)), 200
+
+
+    elif request.method == 'POST':
+        pass
+
+
+    elif request.method == 'PATCH':
+        pass
+
+
+    elif request.method == 'DELETE':
+        if not rule_id:
+            return jsonify(code=400, data='Bad Request'), 400
+
+        res = session.delete(f'{base_url}/rules/{rule_id}')
+        return jsonify(code=200, data=json.loads(res.text)), 200
+        
 
 
 
