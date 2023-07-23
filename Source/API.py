@@ -268,9 +268,11 @@ def interact_security_rules():
         username = 'elastic'
 
     if not password:
-        secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
 
-        return jsonify(code=200, data=json.loads(secret.data)), 200
+        try:
+            secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
+        except Exception as e:
+            return jsonify(code=500, data=e), 500
 
         password = base64.b64decode(json.loads(secret.data.get('data', {}).get('password',''))).decode('utf-8')
 
