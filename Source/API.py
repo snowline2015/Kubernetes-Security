@@ -268,13 +268,14 @@ def interact_security_rules():
         username = 'elastic'
 
     if not password:
-
         try:
             secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
+            password = base64.b64decode(json.loads(secret.data).get('data', {}).get('password','')).decode('utf-8')
         except ApiException as e:
-            return jsonify(code=500, data=e.body), 500
-
-        password = base64.b64decode(json.loads(secret.data.get('data', {}).get('password',''))).decode('utf-8')
+            if e.status == 404:
+                return jsonify(code=404, data='Not Found'), 404
+            else:
+                return jsonify(code=500, data='Internal Server Error'), 500
 
     session = requests.Session()
     session.auth = (username, password)
