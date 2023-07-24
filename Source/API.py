@@ -268,19 +268,16 @@ def interact_security_rules():
         username = 'elastic'
 
     if not password:
-        try:
-            secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
-            password = base64.b64decode(json.loads(secret.data).get('data', {}).get('password','')).decode('utf-8')
-        except ApiException as e:
-            if e.status == 404:
-                return jsonify(code=404, data='Not Found'), 404
-            else:
-                return jsonify(code=500, data='Internal Server Error'), 500
+        secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
+        password = base64.b64decode(json.loads(secret.data).get('data', {}).get('password','')).decode('utf-8')
+
 
     session = requests.Session()
     session.auth = (username, password)
     session.headers.update({'kbn-xsrf': 'true', 'Content-Type': 'application/json'})
     base_url = 'http://kibana-kibana.default.svc.cluster.local:5601/api/detection_engine'
+
+    return jsonify(code=200, data='OK'), 200
 
     if request.method == 'GET':
         if rule_id:
@@ -288,7 +285,7 @@ def interact_security_rules():
             return jsonify(code=res.status_code, data=json.loads(res.text)), res.status_code
         
         else:
-            res = session.get(f'{base_url}/rules/_find', params={'per_page': 100}).json()
+            res = session.get(f'{base_url}/rules/_find', params={'per_page': 100, 'page': 1}).json()
             while res.get('total', 0) > len(res.get('data', [])):
                 temp = session.get(f'{base_url}/rules/_find', params={'per_page': 100, 'page': res.get('page', 1) + 1}).json()
                 res['data'].extend(temp.get('data', []))
