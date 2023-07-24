@@ -256,7 +256,7 @@ def get_logs():
 
 
 
-
+ok = ''
 
 @app.route('/api/v1/rules', methods=['GET', 'POST', 'PATCH', 'DELETE'])
 def interact_security_rules():
@@ -264,12 +264,25 @@ def interact_security_rules():
     password = request.args.get('password', '')
     rule_id = request.args.get('rule_id', '')
 
+    ok = 'OK'
+
     if not username:
         username = 'elastic'
 
+        ok = 'nice'
+
     if not password:
-        secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
-        password = base64.b64decode(json.loads(secret.data).get('data', {}).get('password','')).decode('utf-8')
+        try:
+            secret = v1.read_namespaced_secret(name='elasticsearch-master-credentials', namespace='default', watch=False, _preload_content=False)
+            password = base64.b64decode(json.loads(secret.data).get('data', {}).get('password','')).decode('utf-8')
+
+        except ApiException as e:
+            if e.status == 404:
+                return jsonify(code=404, data='Not Found'), 404
+            else:
+                return jsonify(code=500, data='Internal Server Error'), 500
+            
+    ok = 'Good'
 
 
     session = requests.Session()
@@ -277,7 +290,7 @@ def interact_security_rules():
     session.headers.update({'kbn-xsrf': 'true', 'Content-Type': 'application/json'})
     base_url = 'http://kibana-kibana.default.svc.cluster.local:5601/api/detection_engine'
 
-    return jsonify(code=200, data='OK'), 200
+    return jsonify(code=200, data=ok), 200
 
     if request.method == 'GET':
         if rule_id:
