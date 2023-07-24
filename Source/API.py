@@ -260,6 +260,9 @@ ok = ''
 
 @app.route('/api/v1/rules', methods=['GET', 'POST', 'PATCH', 'DELETE'])
 def interact_security_rules():
+
+    global ok
+
     username = request.args.get('username', '')
     password = request.args.get('password', '')
     rule_id = request.args.get('rule_id', '')
