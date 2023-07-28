@@ -278,9 +278,6 @@ def interact_security_rules():
                 return jsonify(code=404, data='Not Found'), 404
             else:
                 return jsonify(code=500, data='Internal Server Error'), 500
-            
-        # except Exception as e:
-        #     return jsonify(code=500, data=str(e)), 500
 
     session = requests.Session()
     session.auth = (username, password)
@@ -289,7 +286,9 @@ def interact_security_rules():
 
     if request.method == 'GET':
         if rule_id:
-            res = session.get(f'{base_url}/rules/{rule_id}')
+            res = session.get(f'{base_url}/rules/', params={'rule_id': rule_id})
+            if res.status_code == 404:
+                return jsonify(code=404, data='Not Found'), 404
             return jsonify(code=res.status_code, data=json.loads(res.text)), res.status_code
         
         else:
