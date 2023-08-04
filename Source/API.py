@@ -106,13 +106,16 @@ def interact_pods():
 
 @app.route('/api/v1/scan', methods=['GET', 'POST'])
 def scan_image():
-    pod = request.args.get('pod', '')
-    namespace = request.args.get('namespace', '')
-
+    
     if request.method == 'GET':
+        # pod = request.args.get('pod', '')
+        # namespace = request.args.get('namespace', '')
         pass
 
     elif request.method == 'POST':
+        pod = request.get_json(force=True).get('pod', '')
+        namespace = request.get_json(force=True).get('namespace', '')
+
         if not pod or not namespace:
             return jsonify(code=400, data='Bad Request'), 400
 
