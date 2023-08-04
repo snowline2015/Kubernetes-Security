@@ -15,7 +15,8 @@ subprocess.run(
 subprocess.run(
     'helm repo add elastic https://helm.elastic.co && helm repo update && '
     'helm install elasticsearch elastic/elasticsearch -f '
-    'https://raw.githubusercontent.com/snowline2015/Kubernetes-Security/main/Doc/Installation/Helm/elasticsearch.yaml', shell=True)
+    'https://raw.githubusercontent.com/snowline2015/Kubernetes-Security/main/Doc/Installation/Helm/elasticsearch.yaml && '
+    'kubectl rollout status statefulset.apps/elasticsearch-master -w', shell=True)
 
 
 
