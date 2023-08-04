@@ -3,6 +3,7 @@ import subprocess
 from tabulate import tabulate
 
 
+
 class Trivy:
     def __init__(self):
         self.RESULTS = []
@@ -20,13 +21,15 @@ class Trivy:
         if res.stdout:
             self.RESULTS.append(Image(json.loads(res.stdout)))
 
+
+    def clear_cache(self):
+        subprocess.run('trivy image --clear-cache', shell=True)
+
     
-    def json_output(self):
-        pass
-
-
-    def table_output(self):
-        pass
+    def output(self):
+        res = {k: [vuln.to_dict() for vuln in v] if isinstance(v, list) and all(isinstance(x, Vulnerability) for x in v) else v for k, v in self.RESULTS[0].FINDINGS.items()}
+        return res
+    
 
 
 class Image:
@@ -62,10 +65,26 @@ class Vulnerability:
         # self.PUBLISHED_DATE = data.get('PublishedDate', '')
         # self.LAST_MODIFIED_DATE = data.get('LastModifiedDate', '')
 
+    
+    def to_dict(self):
+        return {
+            'CVE': self.CVE,
+            'PACKAGE': self.PACKAGE,
+            'VERSION': self.VERSION,
+            'LAYER': self.LAYER,
+            'DATASOURCE': self.DATASOURCE,
+            'TITLE': self.TITLE,
+            'DESCRIPTION': self.DESCRIPTION,
+            'SEVERITY': self.SEVERITY,
+            'CWE': self.CWE,
+            'CVSS': self.CVSS
+        }
+
 
 
 
 
 if __name__ == '__main__':
     trivy = Trivy()
-    trivy.scan('nginx:latest')
+    trivy.scan('python:3.4-alpine')
+    print(trivy.output())
