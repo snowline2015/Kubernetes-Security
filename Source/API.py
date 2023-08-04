@@ -108,6 +108,7 @@ def interact_pods():
 def scan_image():
     pod = request.args.get('pod', '')
     namespace = request.args.get('namespace', '')
+    output = request.args.get('output', '')
 
     if request.method == 'GET':
         pass
@@ -121,7 +122,9 @@ def scan_image():
             pod_info = Pod(data=json.loads(res.data)).attributes()
             trivy = Trivy()
             trivy.scan(pod_info['image_id'])
-            return jsonify(code=200, data=trivy.result()), 200
+            if output == 'table':
+                return jsonify(code=200, data=trivy.table_output()), 200
+            return jsonify(code=200, data=trivy.json_output()), 200
 
         except ApiException as e:
             if e.status == 404:

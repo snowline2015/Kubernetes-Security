@@ -1,5 +1,6 @@
 import json
 import subprocess
+from tabulate import tabulate
 
 
 class Trivy:
@@ -18,6 +19,14 @@ class Trivy:
                              shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if res.stdout:
             self.RESULTS.append(Image(json.loads(res.stdout)))
+
+    
+    def json_output(self):
+        pass
+
+
+    def table_output(self):
+        pass
 
 
 class Image:
